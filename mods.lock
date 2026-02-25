@@ -13,7 +13,18 @@
           "upstream": "SeaBlock/locale/en/SeaBlock.cfg",
           "local": "SeaBlock.cfg"
         }
-      ]
+      ],
+      "subdir": "SeaBlock"
+    },
+    "SeaBlockMetaPack": {
+      "url": "https://github.com/KompetenzAirbag/SeaBlock",
+      "cache_key": "SeaBlock",
+      "upstream_branch": "dev",
+      "pinned_sha": "19176413a61c47d6ef99c8fa22769a094d4b43ba",
+      "pinned_at": "2026-02-25",
+      "upstream_only": true,
+      "locale_files": [],
+      "subdir": "SeaBlockMetaPack"
     },
     "SpaceMod": {
       "url": "https://github.com/elvanaud/SpaceMod",
@@ -27,7 +38,8 @@
           "upstream": "locale/en/locale.cfg",
           "local": "SpaceMod.cfg"
         }
-      ]
+      ],
+      "subdir": null
     },
     "ScienceCostTweakerM": {
       "url": "https://github.com/KompetenzAirbag/ScienceCostTweakerM",
@@ -41,7 +53,8 @@
           "upstream": "locale/en/sciencecosttweaker.cfg",
           "local": "sciencecosttweaker.cfg"
         }
-      ]
+      ],
+      "subdir": null
     },
     "LandfillPainting": {
       "url": "https://github.com/sarcastic-coder/LandfillPainting",
@@ -55,21 +68,23 @@
           "upstream": "LandfillPainting/locale/en/LandfillPainting.cfg",
           "local": "LandfillPainting.cfg"
         }
-      ]
+      ],
+      "subdir": "LandfillPainting"
     },
     "CircuitProcessing": {
       "url": "https://github.com/KompetenzAirbag/CircuitProcessing",
       "cache_key": "CircuitProcessing",
-      "upstream_branch": "main",
-      "pinned_sha": "d879dc1269a0785c7c6b054249356b89ae5ad350",
-      "pinned_at": "2026-02-25",
+      "upstream_branch": "dev",
+      "pinned_sha": "dac19654abaa94f62bc3e3749a85039bdddc53fc",
+      "pinned_at": "2026-02-26",
       "upstream_only": false,
       "locale_files": [
         {
           "upstream": "CircuitProcessing/locale/en/CircuitProcessing.cfg",
           "local": "CircuitProcessing.cfg"
         }
-      ]
+      ],
+      "subdir": "CircuitProcessing"
     },
     "angelsbioprocessing": {
       "url": "https://github.com/Arch666Angel/mods",
@@ -87,7 +102,8 @@
           "upstream": "angelsbioprocessing/locale/en/tips-and-tricks.cfg",
           "local": "angelsbioprocessing-tips-and-tricks.cfg"
         }
-      ]
+      ],
+      "subdir": "angelsbioprocessing"
     },
     "angelsrefining": {
       "url": "https://github.com/Arch666Angel/mods",
@@ -125,7 +141,8 @@
           "upstream": "angelsrefining/locale/en/welcome-message.cfg",
           "local": "angelsrefining-welcome-message.cfg"
         }
-      ]
+      ],
+      "subdir": "angelsrefining"
     },
     "angelssmelting": {
       "url": "https://github.com/Arch666Angel/mods",
@@ -139,7 +156,8 @@
           "upstream": "angelssmelting/locale/en/smelting.cfg",
           "local": "angelssmelting.cfg"
         }
-      ]
+      ],
+      "subdir": "angelssmelting"
     },
     "angelspetrochem": {
       "url": "https://github.com/Arch666Angel/mods",
@@ -161,7 +179,8 @@
           "upstream": "angelspetrochem/locale/en/tips-and-tricks.cfg",
           "local": "angelspetrochem-tips-and-tricks.cfg"
         }
-      ]
+      ],
+      "subdir": "angelspetrochem"
     },
     "angelsaddons-storage": {
       "url": "https://github.com/Arch666Angel/mods",
@@ -179,7 +198,48 @@
           "upstream": "angelsaddons-storage/locale/en/tips-and-tricks.cfg",
           "local": "angelsaddons-storage-tips-and-tricks.cfg"
         }
-      ]
+      ],
+      "subdir": "angelsaddons-storage"
+    },
+    "angelsbioprocessinggraphics": {
+      "url": "https://github.com/Arch666Angel/mods",
+      "cache_key": "Arch666Angel",
+      "upstream_branch": "dev2.0",
+      "pinned_sha": "45a15602f41a40d4f02f4c4b77397e4629e24c91",
+      "pinned_at": "2026-02-25",
+      "upstream_only": true,
+      "locale_files": [],
+      "subdir": "angelsbioprocessinggraphics"
+    },
+    "angelsrefininggraphics": {
+      "url": "https://github.com/Arch666Angel/mods",
+      "cache_key": "Arch666Angel",
+      "upstream_branch": "dev2.0",
+      "pinned_sha": "45a15602f41a40d4f02f4c4b77397e4629e24c91",
+      "pinned_at": "2026-02-25",
+      "upstream_only": true,
+      "locale_files": [],
+      "subdir": "angelsrefininggraphics"
+    },
+    "angelssmeltinggraphics": {
+      "url": "https://github.com/Arch666Angel/mods",
+      "cache_key": "Arch666Angel",
+      "upstream_branch": "dev2.0",
+      "pinned_sha": "45a15602f41a40d4f02f4c4b77397e4629e24c91",
+      "pinned_at": "2026-02-25",
+      "upstream_only": true,
+      "locale_files": [],
+      "subdir": "angelssmeltinggraphics"
+    },
+    "angelspetrochemgraphics": {
+      "url": "https://github.com/Arch666Angel/mods",
+      "cache_key": "Arch666Angel",
+      "upstream_branch": "dev2.0",
+      "pinned_sha": "45a15602f41a40d4f02f4c4b77397e4629e24c91",
+      "pinned_at": "2026-02-25",
+      "upstream_only": true,
+      "locale_files": [],
+      "subdir": "angelspetrochemgraphics"
     },
     "bobelectronics": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -193,7 +253,8 @@
           "upstream": "bobelectronics/locale/en/bobelectronics.cfg",
           "local": "bobelectronics.cfg"
         }
-      ]
+      ],
+      "subdir": "bobelectronics"
     },
     "boblibrary": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -207,7 +268,8 @@
           "upstream": "boblibrary/locale/en/boblibrary.cfg",
           "local": "boblibrary.cfg"
         }
-      ]
+      ],
+      "subdir": "boblibrary"
     },
     "boblogistics": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -221,7 +283,8 @@
           "upstream": "boblogistics/locale/en/boblogistics.cfg",
           "local": "boblogistics.cfg"
         }
-      ]
+      ],
+      "subdir": "boblogistics"
     },
     "bobores": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -235,7 +298,8 @@
           "upstream": "bobores/locale/en/bobores.cfg",
           "local": "bobores.cfg"
         }
-      ]
+      ],
+      "subdir": "bobores"
     },
     "bobplates": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -249,7 +313,8 @@
           "upstream": "bobplates/locale/en/bobplates.cfg",
           "local": "bobplates.cfg"
         }
-      ]
+      ],
+      "subdir": "bobplates"
     },
     "bobassembly": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -263,7 +328,8 @@
           "upstream": "bobassembly/locale/en/bobassembly.cfg",
           "local": "bobassembly.cfg"
         }
-      ]
+      ],
+      "subdir": "bobassembly"
     },
     "bobenemies": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -277,7 +343,8 @@
           "upstream": "bobenemies/locale/en/bobenemies.cfg",
           "local": "bobenemies.cfg"
         }
-      ]
+      ],
+      "subdir": "bobenemies"
     },
     "bobequipment": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -291,7 +358,8 @@
           "upstream": "bobequipment/locale/en/bobequipment.cfg",
           "local": "bobequipment.cfg"
         }
-      ]
+      ],
+      "subdir": "bobequipment"
     },
     "bobinserters": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -305,7 +373,8 @@
           "upstream": "bobinserters/locale/en/bobinserters.cfg",
           "local": "bobinserters.cfg"
         }
-      ]
+      ],
+      "subdir": "bobinserters"
     },
     "bobmining": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -319,7 +388,8 @@
           "upstream": "bobmining/locale/en/bobmining.cfg",
           "local": "bobmining.cfg"
         }
-      ]
+      ],
+      "subdir": "bobmining"
     },
     "bobmodules": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -333,7 +403,8 @@
           "upstream": "bobmodules/locale/en/bobmodules.cfg",
           "local": "bobmodules.cfg"
         }
-      ]
+      ],
+      "subdir": "bobmodules"
     },
     "bobpower": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -347,7 +418,8 @@
           "upstream": "bobpower/locale/en/bobpower.cfg",
           "local": "bobpower.cfg"
         }
-      ]
+      ],
+      "subdir": "bobpower"
     },
     "bobrevamp": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -361,7 +433,8 @@
           "upstream": "bobrevamp/locale/en/bobrevamp.cfg",
           "local": "bobrevamp.cfg"
         }
-      ]
+      ],
+      "subdir": "bobrevamp"
     },
     "bobtech": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -375,7 +448,8 @@
           "upstream": "bobtech/locale/en/bobtech.cfg",
           "local": "bobtech.cfg"
         }
-      ]
+      ],
+      "subdir": "bobtech"
     },
     "bobwarfare": {
       "url": "https://github.com/modded-factorio/bobsmods",
@@ -389,7 +463,8 @@
           "upstream": "bobwarfare/locale/en/bobwarfare.cfg",
           "local": "bobwarfare.cfg"
         }
-      ]
+      ],
+      "subdir": "bobwarfare"
     },
     "reskins-bobs": {
       "url": "https://github.com/kirazy/reskins-bobs",
@@ -403,7 +478,18 @@
           "upstream": "locale/en/reskins-bobs-locale.cfg",
           "local": "reskins-bobs.cfg"
         }
-      ]
+      ],
+      "subdir": null
+    },
+    "reskins-compatibility": {
+      "url": "https://github.com/kirazy/reskins-compatibility",
+      "cache_key": "reskins-compatibility",
+      "upstream_branch": "master",
+      "pinned_sha": "00c1fc87225f09c1ae5d4a83ecc6d601d9d0f2ab",
+      "pinned_at": "2026-02-26",
+      "upstream_only": true,
+      "locale_files": [],
+      "subdir": null
     },
     "reskins-angels": {
       "url": "https://github.com/kirazy/reskins-angels",
@@ -417,7 +503,8 @@
           "upstream": "locale/en/reskins-angels-locale.cfg",
           "local": "reskins-angels.cfg"
         }
-      ]
+      ],
+      "subdir": null
     }
   }
 }
