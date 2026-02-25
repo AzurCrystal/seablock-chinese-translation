@@ -1,6 +1,5 @@
-# install.ps1 â€” SeaBlock æ¨¡ç»„åŒ…ä¸€é”®å®‰è£…è„šæœ¬ï¼ˆWindows PowerShellï¼‰
-# ç”¨æ³•ï¼špwsh -File scripts\install.ps1 [-ModsDir <è·¯å¾„>] [-DryRun]
-# è¦æ±‚ï¼šPowerShell 5.1+ æˆ– PowerShell 7+
+# install.ps1 ¡ª SeaBlock Ä£×é°üÒ»¼ü°²×°½Å±¾£¨Windows PowerShell 5.1+£©
+# ÓÃ·¨£º.\scripts\install.ps1 [-ModsDir <Â·¾¶>] [-DryRun]
 [CmdletBinding()]
 param(
     [string]$ModsDir = "",
@@ -12,13 +11,14 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $ModsLock = Join-Path $RepoRoot "mods.lock"
 $ExtraModsDir = Join-Path $RepoRoot "extra-mods"
+$CacheDir = Join-Path $RepoRoot "download-cache"
 
-# â”€â”€ é¢œè‰²è¾“å‡º â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ©¤©¤ ÑÕÉ«Êä³ö ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
 function Write-Info  { param($Msg) Write-Host "[INFO]  $Msg" -ForegroundColor Green }
 function Write-Warn  { param($Msg) Write-Host "[WARN]  $Msg" -ForegroundColor Yellow }
 function Write-Err   { param($Msg) Write-Host "[ERROR] $Msg" -ForegroundColor Red }
 
-# â”€â”€ æ£€æµ‹ Factorio mods ç›®å½• â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ©¤©¤ ¼ì²â Factorio mods Ä¿Â¼ ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
 function Get-ModsDir {
     if ($ModsDir -ne "") { return $ModsDir }
 
@@ -31,13 +31,12 @@ function Get-ModsDir {
         if (Test-Path $dir -PathType Container) { return $dir }
     }
 
-    Write-Err "æœªæ‰¾åˆ° Factorio mods ç›®å½•ã€‚è¯·é€šè¿‡ -ModsDir æ‰‹åŠ¨æŒ‡å®šã€‚"
-    Write-Err "å€™é€‰è·¯å¾„ï¼š$($candidates -join ', ')"
+    Write-Err "Î´ÕÒµ½ Factorio mods Ä¿Â¼¡£ÇëÍ¨¹ı -ModsDir ÊÖ¶¯Ö¸¶¨¡£"
+    Write-Err "ºòÑ¡Â·¾¶£º$($candidates -join ', ')"
     exit 1
 }
 
-# â”€â”€ ä¸‹è½½ GitHub archive zip å¹¶è§£å‹ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-# è¿”å›ï¼šè§£å‹åçš„å†…éƒ¨æ ¹ç›®å½•è·¯å¾„
+# ©¤©¤ ÏÂÔØ GitHub archive zip ²¢½âÑ¹ ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
 $DownloadedCache = @{}   # cache_key -> inner_dir
 
 function Invoke-DownloadAndExtract {
@@ -46,67 +45,113 @@ function Invoke-DownloadAndExtract {
     if ($DownloadedCache.ContainsKey($CacheKey)) { return }
 
     $repoPath = $GithubUrl -replace "https://github.com/", "" -replace "\.git$", ""
-    $repoName = Split-Path -Leaf $repoPath
     $sha8 = $Sha.Substring(0, 8)
 
-    $zipFile = Join-Path $TmpDir "$CacheKey.zip"
-    $extractDir = Join-Path $TmpDir $CacheKey
+    $zipFile    = Join-Path $CacheDir "$CacheKey.zip"
+    $zipTmp     = Join-Path $CacheDir "$CacheKey.zip.tmp"
+    $extractDir = Join-Path $CacheDir $CacheKey
     $downloadUrl = "https://github.com/$repoPath/archive/$Sha.zip"
 
-    Write-Info "ä¸‹è½½ $CacheKeyï¼ˆ$sha8ï¼‰..."
-
     if (-not $DryRun) {
-        Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFile -UseBasicParsing
-        New-Item -ItemType Directory -Path $extractDir -Force | Out-Null
-        Expand-Archive -Path $zipFile -DestinationPath $extractDir -Force
-        Remove-Item $zipFile
+        New-Item -ItemType Directory -Path $CacheDir -Force | Out-Null
 
-        $innerDir = (Get-ChildItem -Path $extractDir -Directory | Select-Object -First 1).FullName
+        # ÇåÀíÉÏ´ÎÖĞ¶ÏÁôÏÂµÄ .tmp ²ĞÁô
+        if (Test-Path $zipTmp) { Remove-Item $zipTmp -Force }
+
+        if (Test-Path $zipFile) {
+            Write-Info "ÒÑ»º´æ£¬Ìø¹ıÏÂÔØ£º$CacheKey"
+        } else {
+            Write-Info "ÏÂÔØ $CacheKey£¨$sha8£©..."
+            $retries = 3
+            $success = $false
+            for ($i = 1; $i -le $retries; $i++) {
+                try {
+                    Invoke-WebRequest -Uri $downloadUrl -OutFile $zipTmp -UseBasicParsing
+                    Rename-Item -Path $zipTmp -NewName (Split-Path $zipFile -Leaf)
+                    $success = $true
+                    break
+                } catch {
+                    Write-Warn "ÏÂÔØÊ§°Ü£¬$i/$retries£º$_"
+                    if (Test-Path $zipTmp) { Remove-Item $zipTmp -Force }
+                    if ($i -lt $retries) { Start-Sleep -Seconds 5 }
+                }
+            }
+            if (-not $success) {
+                Write-Err "ÏÂÔØ $CacheKey Ê§°Ü£¬Çë¼ì²éÍøÂçÁ¬½ÓºóÖØĞÂÔËĞĞ½Å±¾¡£"
+                exit 1
+            }
+        }
+
+        if (-not (Test-Path $extractDir -PathType Container)) {
+            New-Item -ItemType Directory -Path $extractDir -Force | Out-Null
+            # PS 5.1 ¼æÈİ£ºShell.Application ½âÑ¹£¨±ÜÃâ Expand-Archive ³¤Â·¾¶ÏŞÖÆ£©
+            # CopyHere ÊÇÒì²½µÄ£¬ĞèÒªÂÖÑ¯µÈ´ı½âÑ¹Íê³É
+            $shell = New-Object -ComObject Shell.Application
+            $zipObj = $shell.NameSpace($zipFile)
+            $itemCount = $zipObj.Items().Count
+            $destObj = $shell.NameSpace($extractDir)
+            $destObj.CopyHere($zipObj.Items(), 0x14)
+            $deadline = (Get-Date).AddMinutes(10)
+            while ((Get-ChildItem -Path $extractDir -Recurse -File).Count -lt $itemCount) {
+                if ((Get-Date) -gt $deadline) {
+                    Write-Err "½âÑ¹³¬Ê±£º$CacheKey"
+                    exit 1
+                }
+                Start-Sleep -Milliseconds 500
+            }
+        } else {
+            Write-Info "ÒÑ½âÑ¹£¬Ìø¹ı£º$CacheKey"
+        }
+
+        $innerDir = (Get-ChildItem -Path $extractDir -Directory | Select-Object -First 1 -ExpandProperty FullName)
         $DownloadedCache[$CacheKey] = $innerDir
     } else {
-        $DownloadedCache[$CacheKey] = Join-Path $extractDir "$repoName-$Sha"
+        Write-Info "ÏÂÔØ $CacheKey£¨$sha8£©..."
+        $repoName = Split-Path -Leaf $repoPath
+        $DownloadedCache[$CacheKey] = Join-Path $CacheDir "$CacheKey\$repoName-$Sha"
     }
 }
 
-# â”€â”€ å®‰è£…ä¸€ä¸ª mod ç›®å½•åˆ° MODS_DIR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ©¤©¤ °²×°Ò»¸ö mod Ä¿Â¼µ½ MODS_DIR ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
 function Install-ModDir {
     param([string]$SrcDir, [string]$ModName)
 
     if ($DryRun) {
-        Write-Info "[DRY-RUN] å°†å®‰è£… $ModName â†’ $script:ResolvedModsDir\"
+        Write-Info "[DRY-RUN] ½«°²×° $ModName"
         return
     }
 
     if (-not (Test-Path $SrcDir -PathType Container)) {
-        Write-Err "æ¥æºç›®å½•ä¸å­˜åœ¨ï¼š$SrcDir"
+        Write-Err "À´Ô´Ä¿Â¼²»´æÔÚ£º$SrcDir"
         return
     }
 
-    $infoJson = Join-Path $SrcDir "info.json"
-    $version = (Get-Content $infoJson -Raw | ConvertFrom-Json).version
+    $infoPath = Join-Path $SrcDir "info.json"
+    $version = (Get-Content $infoPath -Raw | ConvertFrom-Json).version
     $destName = "${ModName}_${version}"
     $destDir = Join-Path $script:ResolvedModsDir $destName
 
-    # åˆ é™¤åŒåæ—§ç‰ˆæœ¬
+    # É¾³ıÍ¬Ãû¾É°æ±¾
     Get-ChildItem -Path $script:ResolvedModsDir -Directory -Filter "${ModName}_*" | ForEach-Object {
-        Write-Warn "å·²åˆ é™¤æ—§ç‰ˆæœ¬ï¼š$($_.Name)"
+        Write-Warn "ÒÑÉ¾³ı¾É°æ±¾£º$($_.Name)"
         Remove-Item $_.FullName -Recurse -Force
     }
 
     Copy-Item -Path $SrcDir -Destination $destDir -Recurse
-    Write-Info "å·²å®‰è£…ï¼š$destName"
+    Write-Info "ÒÑ°²×°£º$destName"
 }
 
-# â”€â”€ å¤„ç† mods.lock ä¸­çš„æ‰€æœ‰ mod â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ©¤©¤ ´¦Àí mods.lock ÖĞµÄËùÓĞ mod ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
 function Install-ModsLock {
-    Write-Info "=== å®‰è£… mods.lock ä¸­çš„ mod ==="
+    Write-Info "=== °²×° mods.lock ÖĞµÄ mod ==="
 
     $lock = Get-Content $ModsLock -Raw | ConvertFrom-Json
     $mods = $lock.mods
+    $modNames = ($mods | Get-Member -MemberType NoteProperty).Name
 
-    # æŒ‰ cache_key å»é‡ï¼Œä¸‹è½½å„ä»“åº“
+    # °´ cache_key È¥ÖØ£¬ÏÂÔØ¸÷²Ö¿â
     $seen = @{}
-    foreach ($modName in ($mods | Get-Member -MemberType NoteProperty).Name) {
+    foreach ($modName in $modNames) {
         $mod = $mods.$modName
         $key = $mod.cache_key
         if (-not $seen.ContainsKey($key)) {
@@ -115,62 +160,57 @@ function Install-ModsLock {
         }
     }
 
-    # å®‰è£…æ¯ä¸ª mod
-    foreach ($modName in ($mods | Get-Member -MemberType NoteProperty).Name) {
+    # °²×°Ã¿¸ö mod
+    foreach ($modName in $modNames) {
         $mod = $mods.$modName
         $cacheKey = $mod.cache_key
         $innerDir = $DownloadedCache[$cacheKey]
 
-        # åˆ¤æ–­å­ç›®å½•ï¼šlocale_files[0].upstream çš„ç¬¬ä¸€ä¸ªè·¯å¾„æ®µ
-        $firstSeg = $mod.locale_files[0].upstream.Split("/")[0]
-
-        if ($firstSeg -eq "locale") {
-            # ä»“åº“æ ¹ç›®å½•å°±æ˜¯ mod
-            $modSrcDir = $innerDir
+        # ¸ù¾İ subdir ×Ö¶ÎÈ·¶¨ mod Ä¿Â¼£¬Îª null Ê±ÓÃ²Ö¿â¸ùÄ¿Â¼
+        $subdir = $mod.subdir
+        if ($subdir -and $subdir -ne "") {
+            $modSrcDir = Join-Path $innerDir $subdir
         } else {
-            # å­ç›®å½•
-            $modSrcDir = Join-Path $innerDir $firstSeg
+            $modSrcDir = $innerDir
         }
 
         Install-ModDir -SrcDir $modSrcDir -ModName $modName
     }
 }
 
-# â”€â”€ å®‰è£… extra-mods/ ä¸­çš„é™„åŠ  mod zip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ©¤©¤ °²×° extra-mods/ ÖĞµÄ¸½¼Ó mod zip ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
 function Install-ExtraMods {
     if (-not (Test-Path $ExtraModsDir -PathType Container)) { return }
 
-    $zipFiles = Get-ChildItem -Path $ExtraModsDir -Filter "*.zip"
+    $zipFiles = @(Get-ChildItem -Path $ExtraModsDir -Filter "*.zip")
     if ($zipFiles.Count -eq 0) {
-        Write-Info "extra-mods\ ç›®å½•ä¸ºç©ºï¼Œè·³è¿‡é™„åŠ  mod å®‰è£…ã€‚"
+        Write-Info "extra-mods\ Ä¿Â¼Îª¿Õ£¬Ìø¹ı¸½¼Ó mod °²×°¡£"
         return
     }
 
-    Write-Info "=== å®‰è£…é™„åŠ  mod ==="
+    Write-Info "=== °²×°¸½¼Ó mod ==="
     foreach ($zip in $zipFiles) {
         $zipBaseName = $zip.Name
-        # æ–‡ä»¶åæ ¼å¼ï¼š<modname>_<version>.zipï¼Œå–ç¬¬ä¸€ä¸ª _ ä¹‹å‰çš„éƒ¨åˆ†ä½œä¸º mod å
-        $modName = $zipBaseName -replace "_.*", ""
+        $modName = ($zipBaseName -split "_")[0]
 
         if ($DryRun) {
-            Write-Info "[DRY-RUN] å°†å®‰è£…é™„åŠ  modï¼š$zipBaseName"
+            Write-Info "[DRY-RUN] ½«°²×°¸½¼Ó mod£º$zipBaseName"
             continue
         }
 
-        # åˆ é™¤æ—§ç‰ˆæœ¬ï¼ˆzip å’Œç›®å½•å½¢å¼ï¼‰
         Get-ChildItem -Path $script:ResolvedModsDir -Filter "${modName}_*" | ForEach-Object {
-            Write-Warn "å·²åˆ é™¤æ—§ç‰ˆæœ¬ï¼š$($_.Name)"
+            Write-Warn "ÒÑÉ¾³ı¾É°æ±¾£º$($_.Name)"
             Remove-Item $_.FullName -Recurse -Force
         }
 
         Copy-Item -Path $zip.FullName -Destination (Join-Path $script:ResolvedModsDir $zipBaseName)
-        Write-Info "å·²å®‰è£…ï¼š$zipBaseName"
+        Write-Info "ÒÑ°²×°£º$zipBaseName"
     }
 }
 
-# â”€â”€ å®‰è£… seablock-translate æœ¬èº« â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ©¤©¤ °²×° seablock-translate ±¾Éí ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
 function Install-Self {
-    Write-Info "=== å®‰è£… seablock-translate ç¿»è¯‘ mod ==="
+    Write-Info "=== °²×° seablock-translate ·­Òë mod ==="
 
     $selfInfo = Get-Content (Join-Path $RepoRoot "info.json") -Raw | ConvertFrom-Json
     $version = $selfInfo.version
@@ -178,36 +218,36 @@ function Install-Self {
     $destDir = Join-Path $script:ResolvedModsDir $destName
 
     if ($DryRun) {
-        Write-Info "[DRY-RUN] å°†å®‰è£… $destName â†’ $script:ResolvedModsDir\"
+        Write-Info "[DRY-RUN] ½«°²×° $destName"
         return
     }
 
-    # åˆ é™¤æ—§ç‰ˆæœ¬
+    # É¾³ı¾É°æ±¾
     Get-ChildItem -Path $script:ResolvedModsDir -Directory -Filter "seablock-translate_*" | ForEach-Object {
-        Write-Warn "å·²åˆ é™¤æ—§ç‰ˆæœ¬ï¼š$($_.Name)"
+        Write-Warn "ÒÑÉ¾³ı¾É°æ±¾£º$($_.Name)"
         Remove-Item $_.FullName -Recurse -Force
     }
 
     New-Item -ItemType Directory -Path $destDir -Force | Out-Null
     Copy-Item -Path (Join-Path $RepoRoot "info.json") -Destination $destDir
     Copy-Item -Path (Join-Path $RepoRoot "locale") -Destination $destDir -Recurse
-    Write-Info "å·²å®‰è£…ï¼š$destName"
+    # ¸´ÖÆ¸ùÄ¿Â¼ÏÂµÄ Lua ½Å±¾£¨data.lua¡¢data-updates.lua µÈ£©
+    Get-ChildItem -Path $RepoRoot -Filter "*.lua" -File | ForEach-Object {
+        Copy-Item -Path $_.FullName -Destination $destDir
+    }
+    Write-Info "ÒÑ°²×°£º$destName"
 }
 
-# â”€â”€ ä¸»æµç¨‹ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ©¤©¤ Ö÷Á÷³Ì ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
 $script:ResolvedModsDir = Get-ModsDir
-
-# åˆ›å»ºä¸´æ—¶ç›®å½•ï¼ˆå‡½æ•°é€€å‡ºæ—¶æ¸…ç†ï¼‰
-$TmpDir = Join-Path ([IO.Path]::GetTempPath()) "seablock-install-$(Get-Random)"
-New-Item -ItemType Directory -Path $TmpDir -Force | Out-Null
 
 try {
     Write-Host ""
     Write-Host "=============================="
-    Write-Host " SeaBlock æ¨¡ç»„åŒ…å®‰è£…è„šæœ¬"
+    Write-Host " SeaBlock Ä£×é°ü°²×°½Å±¾"
     Write-Host "=============================="
-    Write-Host "  mods ç›®å½•ï¼š$script:ResolvedModsDir"
-    if ($DryRun) { Write-Host "  æ¨¡å¼ï¼šDRY-RUNï¼ˆä¸å®é™…å†™å…¥ï¼‰" -ForegroundColor Yellow }
+    Write-Host "  mods Ä¿Â¼£º$script:ResolvedModsDir"
+    if ($DryRun) { Write-Host "  Ä£Ê½£ºDRY-RUN£¨²»Êµ¼ÊĞ´Èë£©" -ForegroundColor Yellow }
     Write-Host ""
 
     Install-ModsLock
@@ -217,7 +257,8 @@ try {
     Install-Self
 
     Write-Host ""
-    Write-Info "å®‰è£…å®Œæˆï¼è¯·å¯åŠ¨ Factorio å¹¶åœ¨æ¨¡ç»„ç®¡ç†å™¨ä¸­ç¡®è®¤æ‰€æœ‰ mod å·²å¯ç”¨ã€‚"
-} finally {
-    Remove-Item -Path $TmpDir -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Info "°²×°Íê³É£¡ÇëÆô¶¯ Factorio ²¢ÔÚÄ£×é¹ÜÀíÆ÷ÖĞÈ·ÈÏËùÓĞ mod ÒÑÆôÓÃ¡£"
+} catch {
+    Write-Err "°²×°Ê§°Ü£º$_"
+    exit 1
 }
