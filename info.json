@@ -1,0 +1,9 @@
+{
+  "name": "seablock-translate",
+  "version": "0.1.0",
+  "title": "SeaBlock Chinese Translation",
+  "author": "azurcrystal",
+  "description": "Simplified Chinese translations for SeaBlock2 modpack, covering SeaBlock, Angel's mods and related mods.",
+  "factorio_version": "2.0",
+  "dependencies": []
+}

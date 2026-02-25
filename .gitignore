@@ -1,0 +1,10 @@
+upstream-cache/
+diffs/
+
+# IDE & editor
+.vscode/
+.idea/
+*.code-workspace
+
+# Claude Code
+.claude/
