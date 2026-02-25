@@ -1,0 +1,194 @@
+# seablock-translate 项目说明
+
+本项目为 Factorio SeaBlock2 模组包提供简体中文本地化翻译，覆盖 SeaBlock、Angel's 系列及相关模组。
+
+中文翻译文件（`locale/zh-CN/`）是唯一存储在仓库里的 locale 文件，英文参考文件**不**持久化存储，只在 diff 时按需临时拉取后丢弃。
+
+## 目录结构
+
+```
+seablock-translate/
+├── .gitignore               # 排除 upstream-cache/
+├── info.json                # Factorio mod 必须文件
+├── mods.lock                # 上游 pin 清单 + 文件映射（提交到仓库）
+├── scripts/
+│   ├── scan-mods.sh         # 交互式扫描上游仓库，生成 mods.lock
+│   ├── check-updates.sh     # 零带宽检测上游是否有新 commit
+│   └── diff-upstream.sh     # 按需拉取英文 locale，比较两版本差异后丢弃
+├── locale/
+│   └── zh-CN/               # 唯一的 locale 文件，提交到仓库（注意：连字符）
+└── upstream-cache/          # gitignore - 本地 bare clone 缓存（可重建）
+```
+
+## Factorio Mod 格式要求
+
+- **`info.json`**（必须）：包含 `name`、`version`、`title` 字段
+- **`locale/<lang>/`**：语言代码用**连字符**，不用下划线（正确：`zh-CN`，错误：`zh_CN`）
+- locale 文件必须直接放在 `locale/<lang>/` 下，**不支持子目录**
+- 文件格式：UTF-8（无 BOM）的 `.cfg` 文件，`key = value` 格式
+
+## 上游跟踪工作流
+
+### mods.lock 格式
+
+`mods.lock` 锁定每个上游模组到特定 commit hash，并声明文件映射关系。
+
+**一仓库一 mod：**
+```json
+{
+  "schema_version": 1,
+  "mods": {
+    "seablock-packs": {
+      "url": "https://github.com/SpaceMod/SeaBlock-Packs.git",
+      "upstream_branch": "master",
+      "pinned_sha": "a3f9c2d1...",
+      "pinned_at": "2026-02-25",
+      "locale_files": [
+        { "upstream": "locale/en/seablock.cfg", "local": "seablock.cfg" }
+      ]
+    }
+  }
+}
+```
+
+**一仓库多 mod（如 Angelmods）：** 每个 Factorio mod 是独立条目，用 `cache_key` 共享同一个 bare clone：
+```json
+{
+  "angelsbioprocessing": {
+    "url": "https://github.com/Angelsmods/Angelmods.git",
+    "cache_key": "angelmods",
+    "upstream_branch": "master",
+    "pinned_sha": "a3f9c2d1...",
+    "pinned_at": "2026-02-25",
+    "locale_files": [
+      { "upstream": "angelsbioprocessing/locale/en/bio.cfg", "local": "angelsbioprocessing-bio.cfg" }
+    ]
+  }
+}
+```
+
+- `cache_key` 存在时，bare clone 放在 `upstream-cache/<cache_key>.git/`；否则用 mod 名
+- 同一 `cache_key` 的条目 `pinned_sha` 应保持一致
+- `upstream_only: true`：标记已有完善上游翻译、无需本地维护的 mod（`check-updates.sh` 仍追踪，但 `locale/zh-CN/` 不存储其翻译文件）
+
+### 核心脚本
+
+**`check-updates.sh`** — 零带宽检测变更：
+- 用 `git ls-remote` 查询上游当前 branch tip，与 `pinned_sha` 比较
+- 不下载任何 git 对象；对同一 URL 只查询一次
+- 输出 `[OK]` 或 `[CHANGED]`
+
+**`diff-upstream.sh <mod> <new-sha>`** — 按需拉取，比较后丢弃：
+- 确保 bare clone 存在（`--filter=blob:none`）
+- fetch 目标 SHA，用 `git show <sha>:path` 输出内容做 diff
+- 不在磁盘留下英文文件
+
+**`scan-mods.sh`** — 交互式扫描并生成 mods.lock：
+- 读取 `sources.txt`，对每个仓库 `git ls-remote` 获取 SHA，建立临时 bare partial clone
+- 列出所有 `locale/en/*.cfg` 路径，提示用户确认本地文件名
+- 写入 `mods.lock`
+
+### 升级 pin（手动操作）
+
+```bash
+# 1. 查看变更
+./scripts/diff-upstream.sh angelspetrochem <new-sha>
+
+# 2. 确认无误后更新 mods.lock
+jq ".mods[\"angelspetrochem\"].pinned_sha = \"<new-sha>\" \
+  | .mods[\"angelspetrochem\"].pinned_at = \"$(date +%Y-%m-%d)\"" \
+  mods.lock > tmp.json && mv tmp.json mods.lock
+
+# 3. 提交
+git add mods.lock locale/zh-CN/
+git commit -m "chore: upgrade angelspetrochem to <short-sha>"
+```
+
+### 依赖
+
+- `git` >= 2.27
+- `jq`（解析 mods.lock）
+- `diff`（系统自带）
+
+## 翻译文件列表
+
+| 文件 | 内容 |
+|------|------|
+| `angelsrefining-ore-refining.cfg` | 矿石精炼：机器、矿石类型、设置 |
+| `angelsrefining-ore-refining-refining.cfg` | 矿石精炼：中间产品 |
+| `angelsrefining-ore-refining-sorting.cfg` | 矿石分选配方 |
+| `angelsrefining-water-treatment.cfg` | 水处理 |
+| `angelsrefining-tips-and-tricks.cfg` | 精炼提示 |
+| `angelsrefining-welcome-message.cfg` | 欢迎信息 |
+| `angelsbioprocessing-bio-processing.cfg` | 生物处理：实体、物品、配方、科技 |
+| `angelsbioprocessing-tips-and-tricks.cfg` | 生物处理提示 |
+| `angelspetrochem-petrochem.cfg` | 石化处理 |
+| `angelspetrochem-nuclear-power.cfg` | 核能 |
+| `angelspetrochem-tips-and-tricks.cfg` | 石化提示 |
+| `angelssmelting.cfg` | 冶炼与铸造 |
+| `angelsaddons-storage.cfg` | 仓储附加包 |
+| `angelsaddons-storage-tips-and-tricks.cfg` | 仓储提示 |
+| `reskins-angels.cfg` | 工匠重绘：天使系列 |
+| `reskins-bobs.cfg` | 工匠重绘：鲍氏系列 |
+| `CircuitProcessing.cfg` | 电路板处理 |
+| `LandfillPainting.cfg` | 填土涂装 |
+| `SeaBlock.cfg` | SeaBlock 专属内容 |
+| `SpaceMod.cfg` | 太空模组 |
+| `sciencecosttweaker.cfg` | 科研费用调整 |
+
+## 翻译规范
+
+### 文件格式
+
+- 保留 `[section]` 区块头
+- 保留 `;` 注释行，只翻译 `key=value` 中的 value 部分
+- 保留所有占位符：`__1__`、`__ENTITY__xxx__`、`__ITEM__xxx__`
+- 保留所有富文本标签：`[img=...]`、`[font=...]`、`[color=...]`、`[fluid=...]` 等
+- 保留换行符 `\n`（不转换为实际换行）
+
+### 关键术语表
+
+| 英文 | 中文 | 备注 |
+|------|------|------|
+| Nauvis | 新地星 | Factorio 官方中文译名，勿译为"诺维斯" |
+| Saphirite | 蓝晶矿 | Angel's 矿石 |
+| Jivolite | 绿晶矿 | Angel's 矿石 |
+| Stiratite | 赭矿 | Angel's 矿石 |
+| Crotinnium | 铬锡矿 | Angel's 矿石 |
+| Rubyte | 红晶矿 | Angel's 矿石 |
+| Bobmonium | 鲍氏矿 | Angel's 矿石 |
+| Puffer | 膨鱼 | 生物处理生物 |
+| Biters | 虫族 | Factorio 官方译名 |
+| Thermal water | 热矿泉水 | |
+| Slag | 矿渣 | |
+| Mineral sludge | 矿物污泥 | |
+| Refugium | 庇护所 | |
+| Arboretum | 植物园 | |
+| Silo | 筒仓 | |
+| Warehouse | 仓库 | |
+
+### 不翻译的内容
+
+- 外星植物名（Wheaton、Tianaton、Okarinome、Quillnoa、Kendallion 等）——为虚构名称，无标准中文译名
+- 模组名中的专有缩写（ATMOS、VP、QL 等）
+
+### 风格指南
+
+- 物品/配方名：简洁名词短语
+- 描述文本：自然流畅的中文，不逐字直译
+- 技术术语尽量对应现实中文化工/冶金术语
+
+## 待办事项
+
+- [ ] 补全 `mods.lock`：查阅 `upstream-cache/` 中 `seablock-meta` 的 `info.json`，确认其依赖链，再相应更新 `info.json` 的 `dependencies`
+- [ ] 编写 `scripts/check-updates.sh`
+- [ ] 编写 `scripts/diff-upstream.sh`
+- [ ] 编写 `scripts/scan-mods.sh`
+- [ ] 补全 `.gitignore`（排除 `upstream-cache/`）
+
+## 提交规范
+
+按模组类型分组提交，格式：
+```
+feat(locale): add zh-CN translations for <ModName> mod
+```
