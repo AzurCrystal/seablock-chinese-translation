@@ -8,6 +8,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MODS_LOCK="$REPO_ROOT/mods.lock"
 EXTRA_MODS_DIR="$REPO_ROOT/extra-mods"
 CACHE_DIR="$REPO_ROOT/download-cache"
+DOWNLOADED_CACHE_DIR="$CACHE_DIR/.downloaded_meta"
 MODS_DIR="${FACTORIO_MODS_DIR:-}"
 DRY_RUN=false
 
@@ -96,22 +97,23 @@ detect_mods_dir() {
 # ── 缓存目录管理 ────────────────────────────────────────────────────────────
 setup_cache() {
     mkdir -p "$CACHE_DIR"
+    mkdir -p "$DOWNLOADED_CACHE_DIR"
     # 清理上次中断留下的 .tmp 残留文件
-    find "$CACHE_DIR" -name "*.tmp" -delete
+    find "$CACHE_DIR" -maxdepth 1 -name "*.tmp" -delete 2>/dev/null || true
 }
 
 # ── 下载 GitHub archive zip（同一 cache_key 只下载一次）─────────────────────
 # 参数：$1=cache_key  $2=github_url  $3=sha
 # 输出：解压后的路径（CACHE_DIR/<cache_key>/<repo>-<sha8>/）
-declare -A DOWNLOADED_CACHE  # cache_key -> 解压根目录
-
 download_and_extract() {
-    local cache_key="$1"
-    local github_url="$2"
-    local sha="$3"
+    local cache_key="${1:-}"
+    local github_url="${2:-}"
+    local sha="${3:-}"
+    [[ -z "$cache_key" || -z "$github_url" || -z "$sha" ]] && { error "download_and_extract 缺少参数"; exit 1; }
+    local meta_file="$DOWNLOADED_CACHE_DIR/$cache_key"
 
     # 已下载则直接返回
-    if [[ -n "${DOWNLOADED_CACHE[$cache_key]+x}" ]]; then
+    if [[ -f "$meta_file" ]]; then
         return
     fi
 
@@ -128,7 +130,7 @@ download_and_extract() {
     local extract_dir="$CACHE_DIR/${cache_key}"
     local download_url="https://github.com/${repo_path}/archive/${sha}.zip"
 
-    info "下载 $cache_key（${sha8}）..."
+    info "下载 ${cache_key:-}（${sha8:-}）..."
     if [[ "$DRY_RUN" == false ]]; then
         # 已有完整 zip 缓存则跳过下载
         if [[ -f "$zip_file" ]]; then
@@ -170,7 +172,8 @@ download_and_extract() {
         inner_dir="$CACHE_DIR/${cache_key}/${repo_name}-${sha}"
     fi
 
-    DOWNLOADED_CACHE[$cache_key]="$inner_dir"
+    mkdir -p "$DOWNLOADED_CACHE_DIR"
+    echo "$inner_dir" > "$meta_file"
 }
 
 # ── 安装一个 mod 目录到 MODS_DIR ────────────────────────────────────────────
@@ -213,20 +216,20 @@ install_mod_dir() {
 install_mods_lock() {
     info "=== 安装 mods.lock 中的 mod ==="
 
-    # 获取所有唯一的 (cache_key, url, sha) 组合并下载
-    local -a cache_keys urls shas
-    mapfile -t cache_keys < <(jq -r '.mods | to_entries | map(.value) | unique_by(.cache_key) | .[].cache_key' "$MODS_LOCK")
-    mapfile -t urls      < <(jq -r '.mods | to_entries | map(.value) | unique_by(.cache_key) | .[].url' "$MODS_LOCK")
-    mapfile -t shas      < <(jq -r '.mods | to_entries | map(.value) | unique_by(.cache_key) | .[].pinned_sha' "$MODS_LOCK")
+    # 获取所有唯一的 (cache_key, url, sha) 组合并下载（while-read 兼容 Bash 3.2，无 mapfile）
+    local cache_keys=() urls=() shas=()
+    while IFS= read -r line; do [[ -n "$line" ]] && cache_keys+=("$line"); done < <(jq -r '.mods | to_entries | map(.value) | unique_by(.cache_key) | .[].cache_key' "$MODS_LOCK")
+    while IFS= read -r line; do [[ -n "$line" ]] && urls+=("$line"); done < <(jq -r '.mods | to_entries | map(.value) | unique_by(.cache_key) | .[].url' "$MODS_LOCK")
+    while IFS= read -r line; do [[ -n "$line" ]] && shas+=("$line"); done < <(jq -r '.mods | to_entries | map(.value) | unique_by(.cache_key) | .[].pinned_sha' "$MODS_LOCK")
 
     local i
     for i in "${!cache_keys[@]}"; do
-        download_and_extract "${cache_keys[$i]}" "${urls[$i]}" "${shas[$i]}"
+        download_and_extract "${cache_keys[$i]:-}" "${urls[$i]:-}" "${shas[$i]:-}"
     done
 
     # 逐个 mod 安装
-    local mod_names
-    mapfile -t mod_names < <(jq -r '.mods | keys[]' "$MODS_LOCK")
+    local mod_names=()
+    while IFS= read -r line; do [[ -n "$line" ]] && mod_names+=("$line"); done < <(jq -r '.mods | keys[]' "$MODS_LOCK")
 
     local mod
     for mod in "${mod_names[@]}"; do
@@ -239,7 +242,8 @@ install_mods_lock() {
         local subdir mod_src_dir
         subdir="$(jq -r --arg m "$mod" '.mods[$m].subdir // empty' "$MODS_LOCK")"
 
-        inner_dir="${DOWNLOADED_CACHE[$cache_key]:-}"
+        inner_dir=""
+        [[ -f "$DOWNLOADED_CACHE_DIR/$cache_key" ]] && inner_dir="$(cat "$DOWNLOADED_CACHE_DIR/$cache_key")"
 
         if [[ -z "$subdir" ]]; then
             mod_src_dir="$inner_dir"
