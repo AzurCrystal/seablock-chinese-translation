@@ -143,29 +143,149 @@ git commit -m "chore: upgrade angelspetrochem to <short-sha>"
 - 保留 `[section]` 区块头
 - 保留 `;` 注释行，只翻译 `key=value` 中的 value 部分
 - 保留所有占位符：`__1__`、`__ENTITY__xxx__`、`__ITEM__xxx__`
-- 保留所有富文本标签：`[img=...]`、`[font=...]`、`[color=...]`、`[fluid=...]` 等
 - 保留换行符 `\n`（不转换为实际换行）
+- 富文本标签处理规则：
+  - `[img=...]`、`[item=...]`、`[fluid=...]`、`[entity=...]` — **完整保留，不翻译**
+  - `[font=...]...[/font]`、`[color=...]...[/color]` — **标签原样保留，内部文字需翻译**
+  - `[tooltip=显示文字,引用键]` — **显示文字需翻译，逗号后的引用键不动**
 
 ### 关键术语表
 
+#### 六种复合矿石
+
 | 英文 | 中文 | 备注 |
 |------|------|------|
-| Nauvis | 新地星 | Factorio 官方中文译名，勿译为"诺维斯" |
-| Saphirite | 蓝晶矿 | Angel's 矿石 |
-| Jivolite | 绿晶矿 | Angel's 矿石 |
-| Stiratite | 赭矿 | Angel's 矿石 |
-| Crotinnium | 铬锡矿 | Angel's 矿石 |
-| Rubyte | 红晶矿 | Angel's 矿石 |
-| Bobmonium | 鲍氏矿 | Angel's 矿石 |
-| Puffer | 膨鱼 | 生物处理生物 |
-| Biters | 虫族 | Factorio 官方译名 |
-| Thermal water | 热矿泉水 | |
+| Saphirite | 碧铁矿 | 蓝色；主产铁；Sapphire 词根，碧避开真实矿物蓝铁矿(Vivianite) |
+| Jivolite | 辉铁矿 | 黄色；主产铁；幻想词根，辉=矿物光泽，避开黄铁矿(Pyrite) |
+| Stiratite | 纹铜矿 | 蓝色条纹；主产铜；词根含 stria(条纹)，避开赤铜矿(Cuprite) |
+| Crotinnium | 霜铜矿 | 白色；主产铜；-ium 金属后缀，霜对应白色外观，避开白铜(cupronickel) |
+| Rubyte | 绯铅矿 | 红色；主产铅（仅 bobplates）；Ruby 词根，绯=深红，避开红铅矿(Crocoite) |
+| Bobmonium | 鲍氏矿 | 棕色；主产锡（仅 bobplates）；致敬 Bob's Mods 作者 |
+
+#### 矿石精炼产品
+
+| 英文 | 中文 | 备注 |
+|------|------|------|
+| Crushed ore | 粉碎矿石 | 粉碎机产出 |
+| Ore chunk | 矿石块 | 浮选后产物 |
+| Ore crystal | 矿石晶体 | 酸浸后产物 |
+| Purified ore | 纯化矿石 | 热力精炼后产物 |
+| Nugget | 矿粒 | 小碎粒副产物 |
+| Pellet | 球团矿 | 冶炼用中间品 |
+| Ingot | 锭 | 格式：×锭，如铁锭 |
+| Geode | 晶洞石 | 浮选副产品 |
 | Slag | 矿渣 | |
 | Mineral sludge | 矿物污泥 | |
-| Refugium | 庇护所 | |
-| Arboretum | 植物园 | |
-| Silo | 筒仓 | |
+
+#### 精炼工艺流程
+
+| 英文 | 中文 | 备注 |
+|------|------|------|
+| Crushing / Ore crushing | 粉碎 | |
+| Flotation / Hydro-refining | 浮选 | 化工工序 |
+| Leaching / Chemical refining | 酸浸 | |
+| Thermal refining | 热力精炼 | |
+| Electrowinning | 电解沉积 | |
+| Electrolysis | 电解 | |
+| Crystallization | 结晶 | |
+| Purification | 纯化 | |
+| Ore sorting | 矿石分选 | |
+| Casting | 铸造 | |
+| Smelting | 冶炼 | 专指冶金流程，与 Factorio 基础"熔炼"区分 |
+
+#### 设备与建筑
+
+**矿石处理链**
+
+| 英文 | 中文 |
+|------|------|
+| Ore crusher / Burner ore crusher | 矿石粉碎机 |
+| Flotation cell | 浮选槽 |
+| Leaching plant | 酸浸厂 |
+| Ore refinery | 矿石精炼炉 |
+| Electrowinning cell | 电解沉积槽 |
+| Electrolyser | 电解槽 |
+| Crystallizer | 结晶器 |
+| Ore sorting facility | 矿石分选设施 |
+| Filtration unit | 过滤装置 |
+| Milling drum | 研磨滚筒 |
+
+**冶金设备**
+
+| 英文 | 中文 |
+|------|------|
+| Blast furnace | 高炉 |
+| Chemical furnace | 化学炉 |
+| Induction furnace | 感应炉 |
+| Casting machine | 铸造机 |
+| Strand casting machine | 连铸机 |
+| Pellet press | 造球机 |
+| Filtering furnace | 过滤炉 |
+
+**水处理与生物链**
+
+| 英文 | 中文 |
+|------|------|
+| Hydro plant | 水处理厂 |
+| Clarifier | 澄清器 |
+| Composter | 堆肥机 |
+| Bioprocessor | 生物处理器 |
+| Arboretum | 植物园 |
+| Butchery | 屠宰场 |
+| Hatchery | 孵化场 |
+| Refugium | 庇护所 |
+| Algae farm | 藻类养殖场 |
+| Seed extractor | 种子提取机 |
+| Nutrient extractor | 营养提取机 |
+| Oil press | 榨油机 |
+| Silo | 筒仓 |
+| Bore / Thermal bore | 热力钻探机 |
+| Thermal extractor | 热力提取机 |
+
+#### 流体
+
+| 英文 | 中文 |
+|------|------|
+| Purified water | 净化水 |
+| Saline water | 盐水 |
+| Mineralized water | 矿化水 |
+| Thermal water | 热矿泉水 |
+| Wastewater / Waste water | 废水 |
+| Sulfuric waste water | 硫酸废水 |
+| Fluoric waste water | 氢氟酸废水 |
+| Chloric waste water | 盐酸废水 |
+| Nitric waste water | 硝酸废水 |
+
+#### 材料与中间产品
+
+| 英文 | 中文 | 备注 |
+|------|------|------|
+| Charcoal | 木炭 | |
+| Charcoal filter | 木炭过滤器 | |
+| Charcoal pellet | 木炭颗粒 | |
+| Ceramic filter | 陶瓷过滤器 | |
+| Coke / Solid coke | 焦炭 | |
+| Limestone | 石灰石 | |
+| Coolant | 冷却液 | |
+| Catalyst / Catalysator | 催化剂 | |
+| Nutrient | 营养素 | |
+| Basic circuit board | 基础电路板 | |
+| Electrode | 电极 | |
+| Mold | 铸模 | |
+
+#### 通用术语
+
+| 英文 | 中文 | 备注 |
+|------|------|------|
+| Nauvis | 新地星 | Factorio 官方译名，勿译为"诺维斯" |
+| Biters | 虫族 | Factorio 官方译名 |
+| Puffer | 膨鱼 | 生物处理生物 |
 | Warehouse | 仓库 | |
+| Landfill | 填土 | |
+| Circuit network | 电路网络 | |
+| Logistic network | 物流网络 | |
+| Exoplanetary Studies Lab | 系外行星研究中心 | |
+| Faster than light | 超光速 | |
 
 ### 不翻译的内容
 
@@ -174,9 +294,10 @@ git commit -m "chore: upgrade angelspetrochem to <short-sha>"
 
 ### 风格指南
 
-- 物品/配方名：简洁名词短语
-- 描述文本：自然流畅的中文，不逐字直译
-- 技术术语尽量对应现实中文化工/冶金术语
+- 物品/配方名：简洁名词短语，去掉不必要的冠词（如 "a"、"the"）
+- 描述文本：自然流畅的中文，不逐字直译，避免机器翻译腔
+- 技术术语优先对应现实化工/冶金术语（参照 GregTech/IC2 中文社区惯例）
+- 遇到不确定的专有名词：查阅术语表；没有的，语境意译后在文件末尾用 `; TODO: 以下术语待确认` 注明
 
 ## 待办事项
 
