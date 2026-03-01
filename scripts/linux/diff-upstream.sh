@@ -13,7 +13,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 LOCK_FILE="$REPO_ROOT/mods.lock"
 CACHE_DIR="$REPO_ROOT/upstream-cache"
 
@@ -174,6 +174,6 @@ fi
 
 echo "────────────────────────────────────────────────────────────"
 echo "To update the pin after reviewing:"
-echo "  ./scripts/update-pin.sh $mod $new_sha"
+echo "  ./scripts/linux/update-pin.sh $mod $new_sha"
 echo ""
 echo "Diff saved to: $out_file"

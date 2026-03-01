@@ -10,7 +10,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 LOCK_FILE="$REPO_ROOT/mods.lock"
 
 if [ ! -f "$LOCK_FILE" ]; then
@@ -79,8 +79,8 @@ echo "Summary: ${ok_count} up-to-date, ${changed_count} changed, ${error_count} 
 if [ "$changed_count" -gt 0 ]; then
     echo ""
     echo "To inspect changes for a mod:"
-    echo "  ./scripts/diff-upstream.sh <mod-name> <new-sha>"
+    echo "  ./scripts/linux/diff-upstream.sh <mod-name> <new-sha>"
     echo ""
     echo "To update the pin after reviewing:"
-    echo "  ./scripts/update-pin.sh <mod-name> <new-sha>"
+    echo "  ./scripts/linux/update-pin.sh <mod-name> <new-sha>"
 fi

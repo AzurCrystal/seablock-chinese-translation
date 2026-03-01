@@ -83,8 +83,8 @@ Write-Host "Summary: $okCount up-to-date, $changedCount changed, $errorCount err
 if ($changedCount -gt 0) {
     Write-Host ""
     Write-Host "To inspect changes for a mod:"
-    Write-Host "  .\scripts\ps1\diff-upstream.ps1 <mod-name> <new-sha>"
+    Write-Host "  .\scripts\windows\diff-upstream.ps1 <mod-name> <new-sha>"
     Write-Host ""
     Write-Host "To update the pin after reviewing:"
-    Write-Host "  .\scripts\ps1\update-pin.ps1 <mod-name> <new-sha>"
+    Write-Host "  .\scripts\windows\update-pin.ps1 <mod-name> <new-sha>"
 }

@@ -4,7 +4,7 @@
 # 环境变量：FACTORIO_MODS_DIR 可替代 --mods-dir
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 MODS_LOCK="$REPO_ROOT/mods.lock"
 EXTRA_MODS_DIR="$REPO_ROOT/extra-mods"
 CACHE_DIR="$REPO_ROOT/download-cache"
@@ -76,7 +76,7 @@ detect_mods_dir() {
             )
             ;;
         *)
-            error "不支持的操作系统。Windows 用户请使用 scripts/install.ps1"
+            error "不支持的操作系统。Windows 用户请使用 scripts/windows/install.ps1"
             exit 1
             ;;
     esac
@@ -315,6 +315,88 @@ install_self() {
     info "已安装：$dest_name"
 }
 
+# ── 更新 mod-list.json ───────────────────────────────────────────────────────
+update_mod_list() {
+    info "=== 更新 mod-list.json ==="
+
+    local mod_list_path="$MODS_DIR/mod-list.json"
+
+    # 1. 构建 required 集合
+    declare -A required=()
+    required["seablock-translate"]=1
+    while IFS= read -r name; do
+        required["$name"]=1
+    done < <(jq -r '.mods | keys[]' "$MODS_LOCK")
+    if [[ -d "$EXTRA_MODS_DIR" ]]; then
+        local zip bname
+        for zip in "$EXTRA_MODS_DIR"/*.zip; do
+            [[ -f "$zip" ]] || continue
+            bname="$(basename "$zip")"
+            required["${bname%%_*}"]=1
+        done
+    fi
+
+    # 2. 读取现有 mod-list.json 条目（保留 DLC 等 Factorio 自管理条目）
+    declare -A existing_map=()
+    if [[ -f "$mod_list_path" ]]; then
+        local name enabled
+        while IFS=$'\t' read -r name enabled; do
+            existing_map["$name"]="$enabled"
+        done < <(jq -r '.mods[] | [.name, (.enabled | tostring)] | @tsv' "$mod_list_path")
+    fi
+
+    # 3. 扫描 mods 目录，收集已安装的 mod 名
+    declare -A installed=()
+    local info_file mod_name zip bname
+    for info_file in "$MODS_DIR"/*/info.json; do
+        [[ -f "$info_file" ]] || continue
+        mod_name="$(jq -r '.name // empty' "$info_file" 2>/dev/null)" || true
+        [[ -n "$mod_name" ]] && installed["$mod_name"]=1
+    done
+    for zip in "$MODS_DIR"/*.zip; do
+        [[ -f "$zip" ]] || continue
+        bname="$(basename "$zip")"
+        installed["${bname%%_*}"]=1
+    done
+
+    # 4. 合并所有已知名称并排序
+    declare -A all_names=()
+    local n
+    for n in "${!existing_map[@]}"; do all_names["$n"]=1; done
+    for n in "${!installed[@]}";    do all_names["$n"]=1; done
+    local sorted_names
+    mapfile -t sorted_names < <(printf '%s\n' "${!all_names[@]}" | sort)
+
+    # 5. 统计启用/禁用数（DRY-RUN 也需要）
+    local count_on=0 count_off=0
+    for n in "${sorted_names[@]}"; do
+        if [[ "$n" == "base" ]] || [[ -n "${required[$n]+x}" ]]; then
+            count_on=$((count_on + 1))
+        else
+            count_off=$((count_off + 1))
+        fi
+    done
+
+    if [[ "$DRY_RUN" == true ]]; then
+        info "[DRY-RUN] 将启用 $count_on 个 mod，禁用 $count_off 个 mod"
+        return
+    fi
+
+    # 6. 用 jq 生成 JSON 并写入（base 和 required 集合内的条目为 true，其余为 false）
+    if [[ -f "$mod_list_path" ]]; then
+        cp "$mod_list_path" "${mod_list_path}.bak"
+        info "已备份原 mod-list.json → mod-list.json.bak"
+    fi
+    local req_json
+    req_json=$(printf '%s\n' "base" "${!required[@]}" | jq -R . | jq -s .)
+    printf '%s\n' "${sorted_names[@]}" | jq -R . | jq -s \
+        --argjson req "$req_json" \
+        'map({name: ., enabled: (. as $n | $req | any(. == $n))}) | {mods: .}' \
+        > "$mod_list_path"
+
+    info "mod-list.json 已更新：$count_on 个启用，$count_off 个禁用"
+}
+
 # ── 主流程 ───────────────────────────────────────────────────────────────────
 main() {
     parse_args "$@"
@@ -335,6 +417,8 @@ main() {
     install_extra_mods
     echo ""
     install_self
+    echo ""
+    update_mod_list
 
     echo ""
     info "安装完成！请启动 Factorio 并在模组管理器中确认所有 mod 已启用。"

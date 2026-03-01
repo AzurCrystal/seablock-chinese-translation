@@ -247,7 +247,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobelectronics/locale/en/bobelectronics.cfg",
@@ -262,7 +262,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "boblibrary/locale/en/boblibrary.cfg",
@@ -277,7 +277,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "boblogistics/locale/en/boblogistics.cfg",
@@ -292,7 +292,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobores/locale/en/bobores.cfg",
@@ -307,7 +307,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobplates/locale/en/bobplates.cfg",
@@ -322,7 +322,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobassembly/locale/en/bobassembly.cfg",
@@ -337,7 +337,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobenemies/locale/en/bobenemies.cfg",
@@ -352,7 +352,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobequipment/locale/en/bobequipment.cfg",
@@ -367,7 +367,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobinserters/locale/en/bobinserters.cfg",
@@ -382,7 +382,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobmining/locale/en/bobmining.cfg",
@@ -397,7 +397,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobmodules/locale/en/bobmodules.cfg",
@@ -412,7 +412,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobpower/locale/en/bobpower.cfg",
@@ -427,7 +427,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobrevamp/locale/en/bobrevamp.cfg",
@@ -442,7 +442,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobtech/locale/en/bobtech.cfg",
@@ -457,7 +457,7 @@
       "upstream_branch": "dev",
       "pinned_sha": "ac85f017f65da809918cea7540f110d0d97ff3bb",
       "pinned_at": "2026-02-25",
-      "upstream_only": true,
+      "upstream_only": false,
       "locale_files": [
         {
           "upstream": "bobwarfare/locale/en/bobwarfare.cfg",

@@ -199,7 +199,7 @@ if (-not $foundDiff) {
 
 Out-Line ("─" * 60)
 Out-Line "To update the pin after reviewing:"
-Out-Line "  .\scripts\ps1\update-pin.ps1 $ModName $NewSha"
+Out-Line "  .\scripts\windows\update-pin.ps1 $ModName $NewSha"
 Out-Line ""
 Out-Line "Diff saved to: $outFile"
 
