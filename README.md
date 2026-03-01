@@ -7,38 +7,45 @@ covering SeaBlock, Angel's mods and related mods.
 
 ## 安装
 
-安装脚本会从各上游仓库下载所有 mod，并将本翻译 mod 一并部署到 Factorio mods 目录。
-
-**依赖工具：** `git`、`jq`、`curl` 或 `wget`、`unzip`
-
+安装脚本会从各上游仓库下载所有 mod，并将本翻译 mod 一并部署到 Factorio mods 目录。下载的文件会缓存在 `download-cache/`，如遇到更新问题，请删除整个文件夹后重新下载。
 ### Windows
 
-以管理员身份在 PowerShell 中运行：
+**依赖：** PowerShell 5.1+
+
+在 PowerShell 中运行：
 
 ```powershell
-git clone https://github.com/azurcrystal/seablock-translate
-cd seablock-translate
-.\scripts\install.ps1
+git clone https://github.com/AzurCrystal/seablock-chinese-translation
+cd seablock-chinese-translation
+.\scripts\windows\install.ps1
 ```
 
-如需指定 mods 目录（默认自动检测 `%APPDATA%\Factorio\mods`）：
+如需手动指定 mods 目录（默认自动检测 `%APPDATA%\Factorio\mods`）：
 
 ```powershell
-.\scripts\install.ps1 -ModsDir "D:\Factorio\mods"
+.\scripts\windows\install.ps1 -ModsDir "D:\Factorio\mods"
+```
+
+模拟运行（不实际写入）：
+
+```powershell
+.\scripts\windows\install.ps1 -DryRun
 ```
 
 ### Linux（桌面）
 
+**依赖：** `git`、`jq`、`curl` 或 `wget`、`unzip`
+
 ```bash
-git clone https://github.com/azurcrystal/seablock-translate
-cd seablock-translate
-bash scripts/install.sh
+git clone https://github.com/AzurCrystal/seablock-chinese-translation
+cd seablock-chinese-translation
+bash scripts/linux/install.sh
 ```
 
-如需指定 mods 目录（默认自动检测 `~/.factorio/mods`）：
+如需手动指定 mods 目录（默认自动检测 `~/.factorio/mods`）：
 
 ```bash
-bash scripts/install.sh --mods-dir ~/.factorio/mods
+bash scripts/linux/install.sh --mods-dir ~/.factorio/mods
 ```
 
 ### Linux（无头服务器）
@@ -46,14 +53,14 @@ bash scripts/install.sh --mods-dir ~/.factorio/mods
 通过环境变量或参数指定服务器的 mods 目录：
 
 ```bash
-git clone https://github.com/azurcrystal/seablock-translate
-cd seablock-translate
+git clone https://github.com/AzurCrystal/seablock-chinese-translation
+cd seablock-chinese-translation
 
 # 方式一：环境变量（适合 CI / systemd 环境）
-FACTORIO_MODS_DIR=/opt/factorio/mods bash scripts/install.sh
+FACTORIO_MODS_DIR=/opt/factorio/mods bash scripts/linux/install.sh
 
 # 方式二：命令行参数
-bash scripts/install.sh --mods-dir /opt/factorio/mods
+bash scripts/linux/install.sh --mods-dir /opt/factorio/mods
 ```
 
 脚本自动探测的服务器路径（按优先级）：
@@ -61,17 +68,39 @@ bash scripts/install.sh --mods-dir /opt/factorio/mods
 - `/srv/factorio/mods`
 - `/factorio/mods`
 
+## 更新
+
+当本仓库有新翻译或修正时，拉取最新代码后重新运行安装脚本即可：
+
+**Windows：**
+
+```powershell
+cd seablock-chinese-translation
+git pull
+.\scripts\windows\install.ps1
+```
+
+**Linux：**
+
+```bash
+cd seablock-chinese-translation
+git pull
+bash scripts/linux/install.sh
+```
+
+已下载的 mod zip 会复用缓存（`download-cache/`），无需重新下载。如遇问题，删除 `download-cache/` 后重新运行脚本。
+
 ## 翻译维护工作流
 
 ```bash
 # 1. 检查上游是否有新 commit（零带宽，仅 git ls-remote）
-./scripts/check-updates.sh
+./scripts/linux/check-updates.sh
 
 # 2. 查看 locale 文件变更（按需拉取 blob，不落盘）
-./scripts/diff-upstream.sh <mod-name> [new-sha]
+./scripts/linux/diff-upstream.sh <mod-name> [new-sha]
 
 # 3. 确认后更新 mods.lock 中的 pinned_sha
-./scripts/update-pin.sh <mod-name> [new-sha]
+./scripts/linux/update-pin.sh <mod-name> [new-sha]
 
 # 4. 编辑翻译、提交
 git add mods.lock locale/zh-CN/
