@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # install.sh — SeaBlock 模组包一键安装脚本（Linux / macOS / 无头服务器）
-# 用法：bash scripts/install.sh [--mods-dir <路径>] [--dry-run]
+# 用法：bash scripts/install.sh [--full] [--mods-dir <路径>] [--dry-run]
 # 环境变量：FACTORIO_MODS_DIR 可替代 --mods-dir
 set -euo pipefail
 
@@ -10,6 +10,7 @@ EXTRA_MODS_DIR="$REPO_ROOT/extra-mods"
 CACHE_DIR="$REPO_ROOT/download-cache"
 MODS_DIR="${FACTORIO_MODS_DIR:-}"
 DRY_RUN=false
+FULL=false
 
 # ── 颜色输出 ────────────────────────────────────────────────────────────────
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; RESET='\033[0m'
@@ -21,11 +22,14 @@ error() { echo -e "${RED}[ERROR]${RESET} $*" >&2; }
 parse_args() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
+            --full)     FULL=true; shift ;;
             --mods-dir) MODS_DIR="$2"; shift 2 ;;
             --dry-run)  DRY_RUN=true; shift ;;
             -h|--help)
-                echo "用法：$0 [--mods-dir <路径>] [--dry-run]"
+                echo "用法：$0 [--full] [--mods-dir <路径>] [--dry-run]"
                 echo ""
+                echo "  （默认）         仅更新 seablock-translate 翻译 mod"
+                echo "  --full           完整安装：下载并安装 mods.lock 中所有 mod + 翻译"
                 echo "  --mods-dir <路径>  指定 Factorio mods 目录（默认自动检测）"
                 echo "  --dry-run          模拟运行，不实际写入文件"
                 echo ""
@@ -39,11 +43,12 @@ parse_args() {
 # ── 依赖检查 ────────────────────────────────────────────────────────────────
 check_deps() {
     local missing=()
-    for cmd in unzip jq; do
-        command -v "$cmd" &>/dev/null || missing+=("$cmd")
-    done
-    if ! command -v curl &>/dev/null && ! command -v wget &>/dev/null; then
-        missing+=(wget/curl)
+    command -v jq &>/dev/null || missing+=(jq)
+    if [[ "$FULL" == true ]]; then
+        command -v unzip &>/dev/null || missing+=(unzip)
+        if ! command -v curl &>/dev/null && ! command -v wget &>/dev/null; then
+            missing+=(wget/curl)
+        fi
     fi
     if [[ ${#missing[@]} -gt 0 ]]; then
         error "缺少必要工具：${missing[*]}"
@@ -265,8 +270,8 @@ install_extra_mods() {
 
         local zip_basename mod_name
         zip_basename="$(basename "$zip_file")"
-        # 文件名格式：<modname>_<version>.zip，取第一个 _ 之前的部分作为 mod 名
-        mod_name="${zip_basename%%_*}"
+        # 文件名格式：<modname>_<version>.zip，去掉 _<数字开头的版本后缀>.zip
+        mod_name="${zip_basename%_[0-9]*}"
 
         if [[ "$DRY_RUN" == true ]]; then
             info "[DRY-RUN] 将安装附加 mod：$zip_basename"
@@ -332,7 +337,7 @@ update_mod_list() {
         for zip in "$EXTRA_MODS_DIR"/*.zip; do
             [[ -f "$zip" ]] || continue
             bname="$(basename "$zip")"
-            required["${bname%%_*}"]=1
+            required["${bname%_[0-9]*}"]=1
         done
     fi
 
@@ -356,7 +361,7 @@ update_mod_list() {
     for zip in "$MODS_DIR"/*.zip; do
         [[ -f "$zip" ]] || continue
         bname="$(basename "$zip")"
-        installed["${bname%%_*}"]=1
+        installed["${bname%_[0-9]*}"]=1
     done
 
     # 4. 合并所有已知名称并排序
@@ -402,20 +407,27 @@ main() {
     parse_args "$@"
     check_deps
     detect_mods_dir
-    setup_cache
+    [[ "$FULL" == true ]] && setup_cache
 
     echo ""
     echo "=============================="
     echo " SeaBlock 模组包安装脚本"
     echo "=============================="
     echo "  mods 目录：$MODS_DIR"
+    if [[ "$FULL" == true ]]; then
+        echo "  模式：完整安装（mods + 翻译）"
+    else
+        echo "  模式：仅更新翻译（使用 --full 执行完整安装）"
+    fi
     [[ "$DRY_RUN" == true ]] && echo "  模式：DRY-RUN（不实际写入）"
     echo ""
 
-    install_mods_lock
-    echo ""
-    install_extra_mods
-    echo ""
+    if [[ "$FULL" == true ]]; then
+        install_mods_lock
+        echo ""
+        install_extra_mods
+        echo ""
+    fi
     install_self
     echo ""
     update_mod_list

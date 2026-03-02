@@ -1,9 +1,10 @@
 ﻿# install.ps1 —— SeaBlock 模组一键安装脚本（Windows PowerShell 5.1+）
-# 用法：.\scripts\install.ps1 [-ModsDir <路径>] [-DryRun]
+# 用法：.\scripts\install.ps1 [-Full] [-ModsDir <路径>] [-DryRun]
 [CmdletBinding()]
 param(
     [string]$ModsDir = "",
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$Full
 )
 
 $ErrorActionPreference = "Stop"
@@ -200,7 +201,7 @@ function Install-ExtraMods {
     Write-Info "=== 安装附带 mod ==="
     foreach ($zip in $zipFiles) {
         $zipBaseName = $zip.Name
-        $modName = ($zipBaseName -split "_")[0]
+        $modName = $zipBaseName -replace '_\d+\.\d+.*$', ''
 
         if ($DryRun) {
             Write-Info "[DRY-RUN] 将安装附带 mod：$zipBaseName"
@@ -265,7 +266,7 @@ function Update-ModList {
 
     if (Test-Path $ExtraModsDir) {
         foreach ($zip in (Get-ChildItem -Path $ExtraModsDir -Filter "*.zip")) {
-            $null = $required.Add(($zip.BaseName -split "_")[0])
+            $null = $required.Add(($zip.BaseName -replace '_\d+\.\d+.*$', ''))
         }
     }
 
@@ -287,7 +288,7 @@ function Update-ModList {
         }
     }
     foreach ($zip in (Get-ChildItem -Path $script:ResolvedModsDir -Filter "*.zip" -File)) {
-        $null = $installed.Add(($zip.BaseName -split "_")[0])
+        $null = $installed.Add(($zip.BaseName -replace '_\d+\.\d+.*$', ''))
     }
 
     # 4. 合并所有已知名称（现有条目 + 新扫描到的）
@@ -333,13 +334,20 @@ try {
     Write-Host " SeaBlock 模组安装脚本"
     Write-Host "=============================="
     Write-Host "  mods 目录：$script:ResolvedModsDir"
+    if ($Full) {
+        Write-Host "  模式：完整安装（mods + 翻译）" -ForegroundColor Cyan
+    } else {
+        Write-Host "  模式：仅更新翻译（使用 -Full 执行完整安装）" -ForegroundColor Cyan
+    }
     if ($DryRun) { Write-Host "  模式：DRY-RUN（不实际写入）" -ForegroundColor Yellow }
     Write-Host ""
 
-    Install-ModsLock
-    Write-Host ""
-    Install-ExtraMods
-    Write-Host ""
+    if ($Full) {
+        Install-ModsLock
+        Write-Host ""
+        Install-ExtraMods
+        Write-Host ""
+    }
     Install-Self
     Write-Host ""
     Update-ModList
