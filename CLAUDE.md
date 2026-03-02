@@ -249,7 +249,7 @@ git commit -m "chore: upgrade angelspetrochem to <short-sha>"
 | Purified water | 净化水 |
 | Saline water | 盐水 |
 | Mineralized water | 矿化水 |
-| Thermal water | 热矿泉水 |
+| Thermal water | 热矿物质水 |
 | Wastewater / Waste water | 废水 |
 | Sulfuric waste water | 硫酸废水 |
 | Fluoric waste water | 氢氟酸废水 |
@@ -291,6 +291,23 @@ git commit -m "chore: upgrade angelspetrochem to <short-sha>"
 
 - 外星植物名（Wheaton、Tianaton、Okarinome、Quillnoa、Kendallion 等）——为虚构名称，无标准中文译名
 - 模组名中的专有缩写（ATMOS、VP、QL 等）
+
+### 分级物品命名规范
+
+Bob's/Angel's 系列模组中，大量物品和建筑存在多个等级。统一采用以下规则：
+
+**规则：MK 格式（适用于物品名和建筑名）**
+
+| 等级 | 格式 | 示例 |
+|------|------|------|
+| 第 1 级 | 无后缀 | `高炉`、`机器人充电站` |
+| 第 2 级起 | ` MK2`、` MK3`…… | `高炉 MK2`、`机器人充电站 MK3` |
+
+**例外：组装机系列**（`assembling-machine`）沿用原版中文惯例，格式为 `组装机4型`、`组装机5型`，不使用 MK。
+
+**不适用的场景（不改，保持原样）：**
+- `[recipe-name]` 配方名中的等级编号
+- `[technology-name]` 科技名中的等级编号
 
 ### 风格指南
 

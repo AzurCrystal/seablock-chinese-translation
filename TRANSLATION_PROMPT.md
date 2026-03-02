@@ -135,7 +135,7 @@ value 中可能出现以下标签，**必须原样保留，不得修改或翻译
 | Purified water | 净化水 |
 | Saline water | 盐水 |
 | Mineralized water | 矿化水 |
-| Thermal water | 热矿泉水 |
+| Thermal water | 热矿物质水 |
 | Wastewater / Waste water | 废水 |
 | Sulfuric waste water | 硫酸废水 |
 | Fluoric waste water | 氢氟酸废水 |
