@@ -227,7 +227,7 @@ git commit -m "chore: upgrade angelspetrochem to <short-sha>"
 | 英文 | 中文 |
 |------|------|
 | Hydro plant | 水处理厂 |
-| Clarifier | 澄清器 |
+| Clarifier | 排液槽 |
 | Composter | 堆肥机 |
 | Bioprocessor | 生物处理器 |
 | Arboretum | 植物园 |
