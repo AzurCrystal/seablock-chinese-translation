@@ -1,7 +1,7 @@
 upstream-cache/
 download-cache/
 diffs/
-
+factorio/
 # IDE & editor
 .vscode/
 .idea/
